@@ -1,0 +1,47 @@
+/* 全体レイアウトの中央寄せ */
+.home-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 横方向中央 */
+  justify-content: center; /* 縦方向中央（必要に応じて） */
+  min-height: 10vh;
+  text-align: center;
+  padding: 20px;
+}
+
+/* 入力フィールドの見た目と整列 */
+.inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* 項目の間隔 */
+  margin: 20px 0;
+}
+
+.inputs label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* ボタン同士の縦の間隔 */
+  align-items: center; /* 横方向の中央揃え（任意） */
+}
+
+/* ボタンのスタイル */
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #f7f7f7;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #e0e0e0;
+}

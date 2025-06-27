@@ -1,0 +1,40 @@
+.game-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f8f8f8;
+}
+
+.game-table {
+    border-collapse: collapse;
+    margin: 20px auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.game-cell {
+    border: 1px solid black;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 24px;
+    cursor: pointer;
+    background-color: white;
+}
+
+/* マス目にカーソルを当てた時の色 */
+.game-cell:hover {
+    background-color: #e0e0e0;
+}
+
+/* マス目に数字が入っている時の色 */
+.game-cell:has(> :not(:empty)) {
+    background-color: #f0f0f0;
+}
+
+.back-link {
+    text-decoration: none;
+    color: blue;
+    font-weight: bold;
+}
