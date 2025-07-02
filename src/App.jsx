@@ -56,6 +56,11 @@ function Main() {
       alert('縦横のマス数は、揃えるマス数よりも多い数を入力してください');
       return; // 遷移を止める
     }
+
+    if (vertical <= 3 || horizontal <= 3) {
+      alert('縦横のマス数は3より多い数を入力してください');
+      return; // 遷移を止める
+    }
     
     // Game.jsx（/game）にページ遷移させる
     // vertical, horizontal, win_numberをpropsとして渡す
