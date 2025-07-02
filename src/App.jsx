@@ -52,19 +52,24 @@ function Main() {
       return; // 遷移を止める
     }
 
-    if (vertical < win_number && horizontal < win_number) {
-      alert('縦横のマス数は、揃えるマス数よりも多い数を入力してください');
+    // typeをnumber（文字列）としてinputしたので、数値に変換する
+    const v = Number(vertical);
+    const h = Number(horizontal);
+    const w = Number(win_number);
+
+    if (v < w && h < w) {
+      alert('縦横のマス数は、どちらかが揃えるマス数以上の値である必要があります');
       return; // 遷移を止める
     }
 
-    if (vertical <= 3 || horizontal <= 3) {
-      alert('縦横のマス数は3より多い数を入力してください');
+    if (v < 3 || h < 3 || w < 3) {
+      alert('各値は3以上の数に設定してください');
       return; // 遷移を止める
     }
     
     // Game.jsx（/game）にページ遷移させる
-    // vertical, horizontal, win_numberをpropsとして渡す
-    navigate('/game', {state: { vertical, horizontal, win_number }});
+    // vertical(v), horizontal(h), win_number(w)をpropsとして渡す
+    navigate('/game', {state: { v, h, w }});
 
   };
 

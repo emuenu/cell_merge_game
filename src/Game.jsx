@@ -9,27 +9,26 @@ function Game() {
     // セルのクリックで対応する要素に1(O)か2(X)を入れるようにする
     // 0: 空、1: X→player: 1, 2: O→player: 2（最初は全て0）
 
-    // vertical、horizontal、win_numberの数値を受け取る
     const location = useLocation();
-    const { vertical, horizontal, win_number } = location.state || {};
-    
-    const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する
+    const { v, h, w } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
+    const navigate = useNavigate();
+
+    const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦][横]）
     const [currentPlayer, setCurrentPlayer] = useState(1); // 手番の来ているプレイヤー（1 = X側, 2 = O側で先手はX側）
 
-    const navigate = useNavigate();
+    // 名前解決
+    const vertical = v;
+    const horizontal = h;
+    const win_number = w;
 
     // マス目を生成する
     useEffect(() => {
 
         if (!vertical || !horizontal) return; // verticalやhorizontalがundefinedなら何もしない
-
-        // typeをnumber（文字列）としてinputしたので、数値に変換する
-        const v = parseInt(vertical, 10);
-        const h = parseInt(horizontal, 10);
         
         // vとhを用いて、二次元配列を生成する（ゲーム盤を初期化）
-        const newTable = Array.from({ length: v }, () =>
-            Array(h).fill(0)
+        const newTable = Array.from({ length: vertical }, () =>
+            Array(horizontal).fill(0)
         );
 
         setTable(newTable); // tableを更新
@@ -176,7 +175,7 @@ function Game() {
         setTable(newTable);
 
         // 勝利判定を行う（win_numberは数値に型変換する）
-        if(wasWin(newTable, parseInt(win_number, 10), currentPlayer)) {
+        if(wasWin(newTable, win_number, currentPlayer)) {
             alert(`Player ${currentPlayer} wins!`);
             navigate("/");  // ホームにリダイレクトさせる
             return; // ゲームは終了
@@ -196,11 +195,6 @@ function Game() {
         setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
 
     };
-
-    // 初期値の確認
-    if (!vertical || !horizontal || !win_number) {
-    return <p>初期値が設定されていません。</p>;
-    }
 
     // GameBoardコンポーネントを使い、propsにtableとonCellClickを渡す
     // GameBoardコンポーネントで二次元配列に対応させてHTMLのテーブルとしてO、Xの表示を含めてゲーム盤を表示させる
