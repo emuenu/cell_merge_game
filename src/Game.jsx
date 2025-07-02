@@ -16,12 +16,23 @@ function Game() {
     const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦][横]）
     const [currentPlayer, setCurrentPlayer] = useState(1); // 手番の来ているプレイヤー（1 = X側, 2 = O側で先手はX側）
 
+    const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める縦結合位置
+    const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null);
+    const [mergeColIndex, setMergeColIndex] = useState(null); // 乱数を使って決める横結合位置
+
     // 名前解決
     const vertical = v;
     const horizontal = h;
     const win_number = w;
 
-    // マス目を生成する
+    // 乱数生成関数（min, maxの間の乱数を生成）
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // tableを初期化してマス目を生成する
     useEffect(() => {
 
         if (!vertical || !horizontal) return; // verticalやhorizontalがundefinedなら何もしない
@@ -30,9 +41,18 @@ function Game() {
         const newTable = Array.from({ length: vertical }, () =>
             Array(horizontal).fill(0)
         );
-
         setTable(newTable); // tableを更新
 
+        // 乱数を生成
+        const mergeRowH = getRandomInt(0, vertical - 1);
+        const mergeRowV = getRandomInt(0, vertical - 2);
+        const mergeCol = getRandomInt(0, horizontal - 2);
+
+        // 値を設定
+        setMergeRowIndex_H(mergeRowH);
+        setMergeRowIndex_V(mergeRowV);
+        setMergeColIndex(mergeCol);
+        
     }, [vertical, horizontal]); // verticalとhorizontalに依存する
 
     // 手番が終わった時、そのプレイヤーが勝利しているか勝利判定を行うアルゴリズム
@@ -196,12 +216,19 @@ function Game() {
 
     };
 
-    // GameBoardコンポーネントを使い、propsにtableとonCellClickを渡す
-    // GameBoardコンポーネントで二次元配列に対応させてHTMLのテーブルとしてO、Xの表示を含めてゲーム盤を表示させる
+    // GameBoardコンポーネントへpropsに渡す
+    // 二次元配列に対応させてHTMLのテーブルとしてO、Xの表示を含めてゲーム盤を表示させる
     return (
         <div className='game-layout'>
             <p>縦: {vertical} / 横: {horizontal} / 勝利条件: {win_number} マス揃える</p>
-            <GameBoard table={table} onCellClick={handleCellClick} />
+            <p>mergeRowIndex_H: {mergeRowIndex_H} / mergeRowIndex_V: {mergeRowIndex_V} / mergeColIndex: {mergeColIndex}</p>
+            <GameBoard
+                table={table}
+                mergeRowIndex_H={mergeRowIndex_H}
+                mergeRowIndex_V={mergeRowIndex_V}
+                mergeColIndex={mergeColIndex}
+                onCellClick={handleCellClick}
+            />
             <Link to="/">Back to Home</Link>
         </div>
     );
