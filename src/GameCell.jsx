@@ -1,5 +1,5 @@
 import React from 'react';
-import './style/game.css';
+import './style/Game.css';
 
 function GameCell({ value, onClick, colSpan, rowSpan }) {
     

@@ -18,7 +18,8 @@ function Game() {
 
     const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める縦結合位置
     const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null);
-    const [mergeColIndex, setMergeColIndex] = useState(null); // 乱数を使って決める横結合位置
+    const [mergeColIndex_H, setMergeColIndex_H] = useState(null); // 乱数を使って決める横結合位置
+    const [mergeColIndex_V, setMergeColIndex_V] = useState(null);
 
     // 名前解決
     const vertical = v;
@@ -46,12 +47,14 @@ function Game() {
         // 乱数を生成
         const mergeRowH = getRandomInt(0, vertical - 1);
         const mergeRowV = getRandomInt(0, vertical - 2);
-        const mergeCol = getRandomInt(0, horizontal - 2);
+        const mergeColH = getRandomInt(0, horizontal - 2);
+        const mergeColV = getRandomInt(0, horizontal - 2);
 
         // 値を設定
         setMergeRowIndex_H(mergeRowH);
         setMergeRowIndex_V(mergeRowV);
-        setMergeColIndex(mergeCol);
+        setMergeColIndex_H(mergeColH);
+        setMergeColIndex_V(mergeColV);
         
     }, [vertical, horizontal]); // verticalとhorizontalに依存する
 
@@ -221,12 +224,12 @@ function Game() {
     return (
         <div className='game-layout'>
             <p>縦: {vertical} / 横: {horizontal} / 勝利条件: {win_number} マス揃える</p>
-            <p>mergeRowIndex_H: {mergeRowIndex_H} / mergeRowIndex_V: {mergeRowIndex_V} / mergeColIndex: {mergeColIndex}</p>
             <GameBoard
                 table={table}
                 mergeRowIndex_H={mergeRowIndex_H}
                 mergeRowIndex_V={mergeRowIndex_V}
-                mergeColIndex={mergeColIndex}
+                mergeColIndex_H={mergeColIndex_H}
+                mergeColIndex_V={mergeColIndex_V}
                 onCellClick={handleCellClick}
             />
             <Link to="/">Back to Home</Link>
