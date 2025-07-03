@@ -212,6 +212,13 @@ function Game() {
         // ゲーム盤を更新させる
         setTable(newTable);
 
+        newTable[mergeRowIndex_H][mergeColIndex_H + 1] = -1; // 横方向に結合されたセルには-1を入れておく
+        newTable[mergeRowIndex_V + 1][mergeColIndex_V] = -2; // 縦方向に結合されたセルには-2を入れておく
+
+        // セルが結合されて表示されている時、結合セルをクリックすると'O'か'X'が表示され、配列としては拡張する側のセル（左か上）の位置にcurrentPlayerの値が入っている
+        // 結合セルの表示は、その拡張する側のセルを2マス分の表示に拡張し、結合された側のセルの表示をスキップすることで実現している
+        // その時、表示されなくなり使われなくなった結合された側のセル（右か下）の位置には配列としては横結合なら-1、縦結合なら-2を入れておく
+
         // 勝利判定を行う（win_numberは数値に型変換する）
         if(wasWin(newTable, win_number, currentPlayer)) {
             alert(`Player ${currentPlayer} wins!`);

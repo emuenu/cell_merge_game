@@ -27,7 +27,7 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                             return (
                                 <GameCell
                                     key={`mergeH-${rowIndex}-${colIndex}`}
-                                    value={`${cell} + ${row[colIndex + 1]}`}
+                                    value={cell}
                                     colSpan={2} // 横方向にこのセルが2つ分の幅へ拡張される
                                     onClick={() => onCellClick(rowIndex, colIndex)}
                                 />
@@ -40,7 +40,7 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                                 colIndex === mergeColIndex_H + 1 &&
                                 !(rowIndex === mergeRowIndex_V && colIndex === mergeColIndex_V + 1)
                             ) {
-                                return null;
+                                return null; // 描画をスキップ
                             }
 
                             // 縦方向のセル結合
@@ -51,7 +51,7 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                             return (
                                 <GameCell
                                     key={`mergeV-${rowIndex}-${colIndex}`}
-                                    value={`${cell} + ${table[rowIndex + 1][colIndex]}`}
+                                    value={cell}
                                     rowSpan={2} // 縦方向にこのセルが2つ分の幅へ拡張される
                                     onClick={() => onCellClick(rowIndex, colIndex)}
                                 />
@@ -64,7 +64,7 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                                 colIndex === mergeColIndex_V &&
                                 !(rowIndex === mergeRowIndex_H + 1 && colIndex === mergeColIndex_H)
                             ) {
-                                return null;
+                                return null; // 描画をスキップ
                             }
 
                             // その他のセルは通常通り描画させる
