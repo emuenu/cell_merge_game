@@ -16,11 +16,11 @@ function Game() {
     const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦][横]）
     const [currentPlayer, setCurrentPlayer] = useState(1); // 手番の来ているプレイヤー（1 = X側, 2 = O側で先手はX側）
 
-    const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める縦結合位置
-    const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null);
-    const [mergeColIndex_H, setMergeColIndex_H] = useState(null); // 乱数を使って決める横結合位置
+    const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null); // 乱数を使って決める縦結合位置
     const [mergeColIndex_V, setMergeColIndex_V] = useState(null);
-
+    const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める横結合位置
+    const [mergeColIndex_H, setMergeColIndex_H] = useState(null);
+    
     // 名前解決
     const vertical = v;
     const horizontal = h;
@@ -44,17 +44,32 @@ function Game() {
         );
         setTable(newTable); // tableを更新
 
-        // 乱数を生成
-        const mergeRowH = getRandomInt(0, vertical - 1);
-        const mergeRowV = getRandomInt(0, vertical - 2);
-        const mergeColH = getRandomInt(0, horizontal - 2);
-        const mergeColV = getRandomInt(0, horizontal - 2);
+        let mergeRowV, mergeColV; // 縦方向結合位置（行数がmergeRowVで列数がmergeColV）
+        let mergeRowH, mergeColH; // 横方向結合位置（行数がmergeRowHで列数がmergeColH）
 
+        // 乱数を生成
+        while(true){
+
+            mergeRowV = getRandomInt(0, vertical - 2); // 下に飛び出してはいけないのでvertical-2まで
+            mergeColV = getRandomInt(0, horizontal - 1);
+            mergeRowH = getRandomInt(0, vertical - 1);
+            mergeColH = getRandomInt(0, horizontal - 2); // 右に飛び出してはいけないのでhorizontal-2まで
+
+            // 値が適切でない場合は乱数生成をやり直す
+            if(
+                !(mergeRowV === mergeRowH && (mergeColV === mergeColH || mergeColV === mergeColH + 1)) &&  // 横方向の結合セルのどちらか2つから下に縦方向の結合セルを伸ばすのはダメ
+                !(mergeRowV === mergeRowH - 1 && (mergeColV === mergeColH || mergeColV === mergeColH + 1)) && // 縦方向の結合セルが横方向の結合セルと被るのはダメ
+                !(mergeColH === mergeColV && (mergeRowH === mergeRowV || mergeRowH === mergeRowV + 1)) && // 縦方向の結合セルのどちらか2つから右に横方向の結合セルを伸ばすのはダメ
+                !(mergeColH === mergeColV -1 && (mergeRowH === mergeRowV || mergeRowH === mergeRowV + 1)) // 横方向の結合セルが縦方向の結合セルと被るのはダメ
+            ) break;
+
+        }
+        
         // 値を設定
-        setMergeRowIndex_H(mergeRowH);
         setMergeRowIndex_V(mergeRowV);
-        setMergeColIndex_H(mergeColH);
         setMergeColIndex_V(mergeColV);
+        setMergeRowIndex_H(mergeRowH);
+        setMergeColIndex_H(mergeColH);
         
     }, [vertical, horizontal]); // verticalとhorizontalに依存する
 
@@ -226,10 +241,10 @@ function Game() {
             <p>縦: {vertical} / 横: {horizontal} / 勝利条件: {win_number} マス揃える</p>
             <GameBoard
                 table={table}
-                mergeRowIndex_H={mergeRowIndex_H}
                 mergeRowIndex_V={mergeRowIndex_V}
-                mergeColIndex_H={mergeColIndex_H}
                 mergeColIndex_V={mergeColIndex_V}
+                mergeRowIndex_H={mergeRowIndex_H}
+                mergeColIndex_H={mergeColIndex_H}
                 onCellClick={handleCellClick}
             />
             <Link to="/">Back to Home</Link>
