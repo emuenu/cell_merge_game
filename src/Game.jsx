@@ -23,6 +23,9 @@ function Game() {
     const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める横結合位置
     const [mergeColIndex_H, setMergeColIndex_H] = useState(null);
     
+    const [highlightCellsP1, setHighlightCellsP1] = useState([]); // player1のハイライト状態を保持
+    const [highlightCellsP2, setHighlightCellsP2] = useState([]); // player2のハイライト状態を保持
+
     // 名前解決
     const vertical = v;
     const horizontal = h;
@@ -96,100 +99,145 @@ function Game() {
         }
     }
 
-    // 横の列をチェック
+    // 横の列をチェック（ハイライト部分収集機能付き）
     const checkRows = (table, win_number, currentPlayer) => {
+        const highlights = []; // ハイライト部分の収集用配列
 
         // table.lengthは縦の行数、table[0].lengthは横の列数になる
         for (let r = 0; r < table.length; r++) {
-            let count = 0;
+            let count = 0; // 連続数のカウント
+            let start = 0; // 横連続をカウントし始めるセルの位置
+
             for (let c = 0; c <= table[0].length; c++) {
 
                 let v = table[r][c];
+
+                // 各行を左から右へ走査して横連続部分をカウントし、横連続部分が終わったら毎回elseに落ちる
                 if (v == currentPlayer || (v == -2 && table[r-1][c] == currentPlayer)) {
+                    if (count === 0) start = c; // 連続開始位置の再設定
                     count += 1; // 縦結合されたセル（-2の値）の場合も考慮して横の連続数をカウント
                 } else if (v == -1) {
-                    // なにもしない
+                    // なにもしない（横結合の部分は2個分でカウントしない）
                 } else {
-                    count = 0;
+
+                    // 連続数が2マス以上であったらその場所をhighlight配列に保持（ハイライト用）
+                    if (count >= 2) {
+                        for (let i = 0; i < count; i++) {
+                            highlights.push([r, start + i]);
+                        }
+                    }
+
+                    // 連続数がwin_number以上となればゲーム終了で勝利とする（win: trueとハイライト位置のhighlightを返す）
+                    if (count >= win_number) {
+                        return { win: true, highlights }; // win_number分だけ連続した数が見つかればtrue
+                    }
+
+                    count = 0; // カウント数はリセット
                 }
 
-                // win_number分だけ連続した数が見つかればtrue
-                if (count === win_number) return true;
             }
         }
-        return false;
+        return { win: false, highlights }; // win_number以上の連続部分が見つからなければ未勝利（ハイライト部分は保持）
     };
 
-    // 縦の列をチェック
+    // 縦の列をチェック（ハイライト部分収集機能付き）
     const checkColumns = (table, win_number, currentPlayer) => {
+        const highlights = [];
 
-        // table.lengthは縦の行数、table[0].lengthは横の列数になる
         for (let c = 0; c < table.length; c++) {
             let count = 0;
+            let start = 0;
+
             for (let r = 0; r < table[0].length; r++) {
+
                 let v = table[r][c];
+
                 if (v == currentPlayer || (v == -1 && table[r][c-1] == currentPlayer)) {
+                    if (count === 0) start = r;
                     count += 1; // 横結合されたセル（-1の値）の場合も考慮して縦の連続数をカウント
                 } else if (v == -2) {
-                    // なにもしない
+                    // なにもしない（縦結合の部分は2個分でカウントしない）
                 } else {
+                    if (count >= 2) {
+                        for (let i = 0; i < count; i++) {
+                            highlights.push([start + i, c]);
+                        }
+                    }
+                    if (count >= win_number) {
+                        return { win: true, highlights };
+                    }
                     count = 0;
                 }
-
-                // win_number分だけ連続した数が見つかればtrue
-                if (count === win_number) return true;
             }
         }
-        return false;
+        return { win: false, highlights };
     };
 
-    // 斜めをチェック
+    // 斜めをチェック（ハイライト部分収集機能付き）
     const checkDiagonals = (table, win_number, currentPlayer) => {
+        const highlights = [];
+
         // 「⇗」と「⇙」の斜めをチェック
         for (let i = 0; i <= table.length + table[0].length -2; i++) {
             let count = 0;
+            let positions = [];
+
             for (let r = 0; r < table.length && r <= i; r++) {
                 let c = i - r;
-                if (getStatus(table, r, c) == currentPlayer){
+                if (getStatus(table, r, c) === currentPlayer){
+                    positions.push([r, c]);
                     count++; // 斜めの場合も結合されたセル（値-1か-2）を考慮して連続数をカウント
                 } else {
+                    if (count >= 2) {
+                        highlights.push(...positions);
+                    }
+                    if (count >= win_number) {
+                        return { win: true, highlights };
+                    }
+
+                    //値をリセット
                     count = 0;
+                    positions = [];   
                 }
-
-                // win_number分だけ連続した数が見つかればtrue
-                if (count === win_number) return true;
             }
-
+            if (count >= 2) {
+                highlights.push(...positions);
+            }
+            if (count >= win_number) {
+                return { win: true, highlights };
+            }
         }
 
         // 「⇘」と「⇖」の斜めをチェック
         for (let i = 0; i <= table.length + table[0].length -2; i++) {
             let count = 0;
+            let positions = [];
+
             for (let r = 0; r < table.length && r <= i; r++) {
                 let c = table[0].length - (i - r);
                 if (getStatus(table, r, c) == currentPlayer){
+                    positions.push([r, c]);
                     count++; // 斜めの場合も結合されたセル（値-1か-2）を考慮して連続数をカウント
                 } else {
+                    if (count >= 2) {
+                        highlights.push(...positions);
+                    }
+                    if (count >= win_number) {
+                        return { win: true, highlights };
+                    }
                     count = 0;
+                    positions = [];
                 }
-
-                // win_number分だけ連続した数が見つかればtrue
-                if (count === win_number) return true;
             }
-
+            if (count >= 2) {
+                highlights.push(...positions);
+            }
+            if (count >= win_number) {
+                return { win: true, highlights };
+            }
         }
 
-        return false;
-
-    };
-
-    // その時のマス目の状態と手番のプレイヤーに対応して勝利判定を行う（勝ったらtrue）
-    const wasWin = (table, win_number, currentPlayer) => {
-        // 縦、横、斜めのいずれかでtrueになっていれば勝利としてtrueを返す
-        if (checkRows(table, win_number, currentPlayer) || 
-            checkColumns(table, win_number, currentPlayer) || 
-            checkDiagonals(table, win_number, currentPlayer))  return true;
-        return false;
+        return { win: false, highlights };
     };
 
     // セルがクリックされたときのイベントハンドラ関数
@@ -214,8 +262,27 @@ function Game() {
         // 結合セルの表示は、その拡張する側のセルを2マス分の表示に拡張し、結合された側のセルの表示をスキップすることで実現している
         // その時、表示されなくなり使われなくなった結合された側のセル（右か下）の位置には配列としては横結合なら-1、縦結合なら-2を入れておく
 
-        // 勝利判定を行う（win_numberは数値に型変換する）
-        if(wasWin(newTable, win_number, currentPlayer)) {
+        // newTableについて、縦・横・斜めで勝利判定及びハイライト位置の取得を行う
+        const { win: winRow, highlights: highlightsRow } = checkRows(newTable, win_number, currentPlayer);
+        const { win: winCol, highlights: highlightsCol } = checkColumns(newTable, win_number, currentPlayer);
+        const { win: winDiag, highlights: highlightsDiag } = checkDiagonals(newTable, win_number, currentPlayer);
+
+        // ハイライト位置を全て統合
+        const allHighlights = [...highlightsRow, ...highlightsCol, ...highlightsDiag];
+
+        // 重複部分があったら削除するユニーク化処理
+        const unique = [...new Set(allHighlights.map(pos => pos.join(',')))]
+            .map(str => str.split(',').map(Number));
+
+        // プレイヤーごとにハイライト情報を保存
+        if (currentPlayer === 1) {
+            setHighlightCellsP1(unique);
+        } else {
+            setHighlightCellsP2(unique);
+        }
+
+        // 最終的な勝利判定を行う
+        if(winRow || winCol || winDiag) {
             alert(`Player ${currentPlayer} wins!`);
             navigate("/");  // ホームにリダイレクトさせる
             return; // ゲームは終了
@@ -247,6 +314,8 @@ function Game() {
                 mergeColIndex_V={mergeColIndex_V}
                 mergeRowIndex_H={mergeRowIndex_H}
                 mergeColIndex_H={mergeColIndex_H}
+                highlightCellsP1={highlightCellsP1}
+                highlightCellsP2={highlightCellsP2}
                 onCellClick={handleCellClick}
             />
             <Link to="/">Back to Home</Link>

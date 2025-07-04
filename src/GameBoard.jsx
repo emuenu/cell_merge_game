@@ -4,7 +4,7 @@ import GameCell from './GameCell';
 // table[mergeRowIndex_V][mergeColIndex_V] と table[mergeRowIndex_V + 1][mergeColIndex_V] を結合させる（縦方向のvertical）
 // table[mergeRowIndex_H][mergeColIndex_H] と table[mergeRowIndex_H][mergeColIndex_H + 1] を結合させる（横方向のhorizontal）
 
-function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, mergeColIndex_H, onCellClick }) {
+function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, mergeColIndex_H, highlightCellsP1, highlightCellsP2, onCellClick }) {
 
     return (
         <table className="game-table">
@@ -19,6 +19,15 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
 
                             // rowIndexが縦方向の行番号でcolIndexが横方向の列番号
 
+                            // プレイヤーごとに分けて現在のセルがハイライト対象かどうかを見る
+                            const isP1Highlight = highlightCellsP1.some(
+                                ([r, c]) => r === rowIndex && c === colIndex
+                            );
+
+                            const isP2Highlight = highlightCellsP2.some(
+                                ([r, c]) => r === rowIndex && c === colIndex
+                            );
+
                             // 横方向のセル結合
                             if (
                                 rowIndex === mergeRowIndex_H &&
@@ -29,6 +38,8 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                                     key={`mergeH-${rowIndex}-${colIndex}`}
                                     value={cell}
                                     colSpan={2} // 横方向にこのセルが2つ分の幅へ拡張される
+                                    isP1Highlight={isP1Highlight}
+                                    isP2Highlight={isP2Highlight}
                                     onClick={() => onCellClick(rowIndex, colIndex)}
                                 />
                             );
@@ -53,6 +64,8 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                                     key={`mergeV-${rowIndex}-${colIndex}`}
                                     value={cell}
                                     rowSpan={2} // 縦方向にこのセルが2つ分の幅へ拡張される
+                                    isP1Highlight={isP1Highlight}
+                                    isP2Highlight={isP2Highlight}
                                     onClick={() => onCellClick(rowIndex, colIndex)}
                                 />
                             );
@@ -72,6 +85,8 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                                 <GameCell
                                     key={`cell-${rowIndex}-${colIndex}`}
                                     value={cell}
+                                    isP1Highlight={isP1Highlight}
+                                    isP2Highlight={isP2Highlight}
                                     onClick={() => onCellClick(rowIndex, colIndex)}
                                 />
                             );
