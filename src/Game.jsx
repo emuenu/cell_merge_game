@@ -8,6 +8,7 @@ function Game() {
     // 縦がverticalで横がhorizontalのマス目用の二次元配列を用意する
     // セルのクリックで対応する要素に1(O)か2(X)を入れるようにする
     // 0: 空、1: X→player: 1, 2: O→player: 2（最初は全て0）
+    // -1: ←(c-1)を参照, -2: ←(r-1)を参照 
 
     const location = useLocation();
     const { v, h, w } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
@@ -74,84 +75,83 @@ function Game() {
     }, [vertical, horizontal]); // verticalとhorizontalに依存する
 
     // 手番が終わった時、そのプレイヤーが勝利しているか勝利判定を行うアルゴリズム
+  
+    // -1, -2を処理して、0か1か2を返す関数
+    const getStatus = (table, r, c) => {
+      if (table[r][c] == 0) {
+        return 0;
+      }
+      if (table[r][c] == 1) {
+        return 1;
+      }
+      if (table[r][c] == 2) {
+        return 2;
+      }
+      if (table[r][c] == -1) {
+        return table[r][c-1];
+      }
+      if (table[r][c] == -2) {
+        return table[r-1][c];
+      }
+    }
 
     // 横の列をチェック
     const checkRows = (table, win_number, currentPlayer) => {
 
         // table.lengthは縦の行数、table[0].lengthは横の列数になる
         for (let r = 0; r < table.length; r++) {
+            let count = 0;
+            for (let c = 0; c <= table[0].length; c++) {
 
-            for (let c = 0; c <= table[0].length - win_number; c++) {
-
-                if (table[r][c] !== currentPlayer) continue; // 先頭が違う場合はスキップ（countの初期値は1）
-
-                let count = 1; // 横に連続した数のカウント（毎回リセット）
-
-                for (let i = 1; i < win_number; i++) {
-
-                    // 横方向に順番に見て行って、要素がcurrentPlayerと同じならcountをインクリメントしていく
-                    // table[r][c]が注目しているセルに入っている数（0、1、2のいずれか）
-                    if (table[r][c + i] === currentPlayer) {
-                        count++;
-                    } else {
-                        break; // それ以外（連続していない場合）は即breakする→countはリセットしてその次からまたセルをチェック
-                    }
-
+                let v = table[r][c];
+                if (v == currentPlayer || (v == -2 && table[r-1][c] == currentPlayer)) {
+                    count += 1;
+                } else if (v == -1) {
+                    // なにもしない
+                } else {
+                    count = 0;
                 }
 
-                // 横方向にwin_number分だけ連続した数が見つかった場合にtrue
                 if (count === win_number) return true;
-
             }
-
         }
-
         return false;
-
     };
 
     // 縦の列をチェック
     const checkColumns = (table, win_number, currentPlayer) => {
 
-        for (let c = 0; c < table[0].length; c++) {
-            for (let r = 0; r <= table.length - win_number; r++) {
-                if (table[r][c] !== currentPlayer) continue;
-                let count = 1;
-
-                for (let i = 1; i < win_number; i++) {
-                    if (table[r + i][c] === currentPlayer) {
-                        count++;
-                    } else {
-                        break;
-                    }
+        // table.lengthは縦の行数、table[0].lengthは横の列数になる
+        for (let c = 0; c < table.length; c++) {
+            let count = 0;
+            for (let r = 0; r < table[0].length; r++) {
+                let v = table[r][c];
+                if (v == currentPlayer || (v == -1 && table[r][c-1] == currentPlayer)) {
+                    count += 1;
+                } else if (v == -2) {
+                    // なにもしない
+                } else {
+                    count = 0;
                 }
 
-                // 縦方向にwin_number分だけ連続した数が見つかればtrue
-                if (count === win_number) return true;  
+                if (count === win_number) return true;
             }
         }
-
         return false;
-
     };
 
     // 斜めをチェック
     const checkDiagonals = (table, win_number, currentPlayer) => {
-
         // 「⇗」と「⇙」の斜めをチェック
-        for (let r = 0; r <= table.length - win_number; r++) {
-
-            for (let c = 0; c <= table[0].length - win_number; c++) {
-
-                if (table[r][c] !== currentPlayer) continue;
-                let count = 1;
-
-                for (let i = 1; i < win_number; i++) {
-                    if (table[r + i][c + i] === currentPlayer) {
-                        count++;
-                    } else {
-                        break;
-                    }
+        for (let i = 0; i <= table.length + table[0].length -2; i++) {
+            let count = 0;
+            for (let r = 0; r < table.length && r <= i; r++) {
+                let c = i - r;
+                console.log(r, c);
+                if (getStatus(table, r, c) == currentPlayer){
+                  count++;
+                } else {
+                  count = 0;
                 }
 
                 // win_number分だけ連続した数が見つかればtrue
@@ -161,24 +161,21 @@ function Game() {
         }
 
         // 「⇘」と「⇖」の斜めをチェック
-        for (let r = win_number - 1; r < table.length; r++) {
-
-            for (let c = 0; c <= table[0].length - win_number; c++) {
-
-                if (table[r][c] !== currentPlayer) continue;
-                let count = 1;
-
-                for (let i = 1; i < win_number; i++) {
-                    if (table[r - i][c + i] === currentPlayer) {
-                        count++;
-                    } else {
-                        break;
-                    }
+        for (let i = 0; i <= table.length + table[0].length -2; i++) {
+            let count = 0;
+            for (let r = 0; r < table.length && r <= i; r++) {
+                let c = table[0].length - (i - r);
+                console.log(r, c);
+                if (getStatus(table, r, c) == currentPlayer){
+                  count++;
+                } else {
+                  count = 0;
                 }
 
                 // win_number分だけ連続した数が見つかればtrue
-                if (count === win_number) return true; 
+                if (count === win_number) return true;
             }
+
         }
 
         return false;
@@ -187,14 +184,11 @@ function Game() {
 
     // その時のマス目の状態と手番のプレイヤーに対応して勝利判定を行う（勝ったらtrue）
     const wasWin = (table, win_number, currentPlayer) => {
-
         // 縦、横、斜めのいずれかでtrueになっていれば勝利としてtrueを返す
         if (checkRows(table, win_number, currentPlayer) || 
             checkColumns(table, win_number, currentPlayer) || 
             checkDiagonals(table, win_number, currentPlayer))  return true;
-
         return false;
-        
     };
 
     // セルがクリックされたときのイベントハンドラ関数
@@ -225,6 +219,7 @@ function Game() {
             navigate("/");  // ホームにリダイレクトさせる
             return; // ゲームは終了
         }
+        console.log("asda");
 
         // 引き分け判定（すべてのセルが埋まっているか）
         const isDraw = newTable.every(row => row.every(cell => cell !== 0));
