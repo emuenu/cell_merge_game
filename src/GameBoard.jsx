@@ -4,7 +4,7 @@ import GameCell from './GameCell';
 // table[mergeRowIndex_V][mergeColIndex_V] と table[mergeRowIndex_V + 1][mergeColIndex_V] を結合させる（縦方向のvertical）
 // table[mergeRowIndex_H][mergeColIndex_H] と table[mergeRowIndex_H][mergeColIndex_H + 1] を結合させる（横方向のhorizontal）
 
-function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, mergeColIndex_H, highlightCellsP1, highlightCellsP2, onCellClick }) {
+function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, mergeColIndex_H, highlightCellsP1, highlightCellsP2, highlightEnabled, onCellClick }) {
 
     return (
         <table className="game-table">
@@ -20,11 +20,12 @@ function GameBoard({ table, mergeRowIndex_V, mergeColIndex_V, mergeRowIndex_H, m
                             // rowIndexが縦方向の行番号でcolIndexが横方向の列番号
 
                             // プレイヤーごとに分けて現在のセルがハイライト対象かどうかを見る
-                            const isP1Highlight = highlightCellsP1.some(
+                            // highlightEnabledがfalse（ハイライト機能がOFF）ならこれに何も入れないようにする
+                            const isP1Highlight = highlightEnabled && highlightCellsP1.some(
                                 ([r, c]) => r === rowIndex && c === colIndex
                             );
 
-                            const isP2Highlight = highlightCellsP2.some(
+                            const isP2Highlight = highlightEnabled && highlightCellsP2.some(
                                 ([r, c]) => r === rowIndex && c === colIndex
                             );
 

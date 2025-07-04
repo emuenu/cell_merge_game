@@ -28,10 +28,17 @@ function Game() {
     const [highlightCellsP1, setHighlightCellsP1] = useState([]); // player1のハイライト状態を保持
     const [highlightCellsP2, setHighlightCellsP2] = useState([]); // player2のハイライト状態を保持
 
+    const [highlightEnabled, setHighlightEnabled] = useState(true); // ハイライト機能のON/OFFを管理
+
     // 名前解決
     const vertical = v;
     const horizontal = h;
     const win_number = w;
+
+    // ハイライト機能のON/OFF用のトグル関数
+    const toggleHighlight = () => {
+        setHighlightEnabled(prev => !prev);
+    };
 
     // tableを初期化してマス目を生成する
     useEffect(() => {
@@ -158,6 +165,9 @@ function Game() {
     return (
         <div className='game-layout'>
             <p>縦: {vertical} / 横: {horizontal} / 勝利条件: {win_number} マス揃える</p>
+            <button onClick={toggleHighlight}>
+                {highlightEnabled ? "ハイライト ON" : "ハイライト OFF"}
+            </button>
             <GameBoard
                 table={table}
                 mergeRowIndex_V={mergeRowIndex_V}
@@ -166,6 +176,7 @@ function Game() {
                 mergeColIndex_H={mergeColIndex_H}
                 highlightCellsP1={highlightCellsP1}
                 highlightCellsP2={highlightCellsP2}
+                highlightEnabled={highlightEnabled}
                 onCellClick={handleCellClick}
             />
             <Link to="/">Back to Home</Link>
