@@ -5,16 +5,17 @@ import './style/Game.css';
 
 function Game() {
 
-    // 縦がverticalで横がhorizontalのマス目用の二次元配列を用意する
+    // 縦がverticalで横がhorizontalの二次元配列を用意してゲームボードを作りn目並べを行う
     // セルのクリックで対応する要素に1(O)か2(X)を入れるようにする
-    // 0: 空、1: X→player: 1, 2: O→player: 2（最初は全て0）
-    // -1: ←(c-1)を参照, -2: ←(r-1)を参照 
+    // 0: 空, 1: X→player: 1, 2: O→player: 2（最初は全て0）
+    // 乱数で決めた値でボード上のランダムな位置に2セル分の結合セルを生成するようにする
+    // -1: ←横結合の際に左隣の(c-1)を参照させる, -2: ←縦結合の際に上の(r-1)を参照させる 
 
     const location = useLocation();
     const { v, h, w } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
     const navigate = useNavigate();
 
-    const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦][横]）
+    const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦の行数][横の列数]）
     const [currentPlayer, setCurrentPlayer] = useState(1); // 手番の来ているプレイヤー（1 = X側, 2 = O側で先手はX側）
 
     const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null); // 乱数を使って決める縦結合位置
@@ -79,19 +80,19 @@ function Game() {
     // -1, -2を処理して、0か1か2を返す関数
     const getStatus = (table, r, c) => {
         if (table[r][c] == 0) {
-            return 0;
+            return 0; // 空欄（未入力）
         }
         if (table[r][c] == 1) {
-            return 1;
+            return 1; // 'X'の方のプレイヤー
         }
         if (table[r][c] == 2) {
-            return 2;
+            return 2; // 'O'の方のプレイヤー
         }
         if (table[r][c] == -1) {
-            return table[r][c-1];
+            return table[r][c-1]; // 横結合されていたら左のセルを見る
         }
         if (table[r][c] == -2) {
-            return table[r-1][c];
+            return table[r-1][c]; // 縦結合されていたら上のセルを見る
         }
     }
 
@@ -105,13 +106,14 @@ function Game() {
 
                 let v = table[r][c];
                 if (v == currentPlayer || (v == -2 && table[r-1][c] == currentPlayer)) {
-                    count += 1;
+                    count += 1; // 縦結合されたセル（-2の値）の場合も考慮して横の連続数をカウント
                 } else if (v == -1) {
                     // なにもしない
                 } else {
                     count = 0;
                 }
 
+                // win_number分だけ連続した数が見つかればtrue
                 if (count === win_number) return true;
             }
         }
@@ -127,13 +129,14 @@ function Game() {
             for (let r = 0; r < table[0].length; r++) {
                 let v = table[r][c];
                 if (v == currentPlayer || (v == -1 && table[r][c-1] == currentPlayer)) {
-                    count += 1;
+                    count += 1; // 横結合されたセル（-1の値）の場合も考慮して縦の連続数をカウント
                 } else if (v == -2) {
                     // なにもしない
                 } else {
                     count = 0;
                 }
 
+                // win_number分だけ連続した数が見つかればtrue
                 if (count === win_number) return true;
             }
         }
@@ -147,9 +150,8 @@ function Game() {
             let count = 0;
             for (let r = 0; r < table.length && r <= i; r++) {
                 let c = i - r;
-                console.log(r, c);
                 if (getStatus(table, r, c) == currentPlayer){
-                    count++;
+                    count++; // 斜めの場合も結合されたセル（値-1か-2）を考慮して連続数をカウント
                 } else {
                     count = 0;
                 }
@@ -165,9 +167,8 @@ function Game() {
             let count = 0;
             for (let r = 0; r < table.length && r <= i; r++) {
                 let c = table[0].length - (i - r);
-                console.log(r, c);
                 if (getStatus(table, r, c) == currentPlayer){
-                    count++;
+                    count++; // 斜めの場合も結合されたセル（値-1か-2）を考慮して連続数をカウント
                 } else {
                     count = 0;
                 }
