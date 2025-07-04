@@ -106,35 +106,41 @@ function Game() {
         // table.lengthは縦の行数、table[0].lengthは横の列数になる
         for (let r = 0; r < table.length; r++) {
             let count = 0; // 連続数のカウント
-            let start = 0; // 横連続をカウントし始めるセルの位置
+            let positions = []; // ハイライトを付ける位置を配列で管理
 
             for (let c = 0; c <= table[0].length; c++) {
-
-                let v = table[r][c];
+                
+                let status = getStatus(table, r, c); // 縦結合されたセル（-2の値）の場合も考慮できるようにする
 
                 // 各行を左から右へ走査して横連続部分をカウントし、横連続部分が終わったら毎回elseに落ちる
-                if (v == currentPlayer || (v == -2 && table[r-1][c] == currentPlayer)) {
-                    if (count === 0) start = c; // 連続開始位置の再設定
-                    count += 1; // 縦結合されたセル（-2の値）の場合も考慮して横の連続数をカウント
-                } else if (v == -1) {
-                    // なにもしない（横結合の部分は2個分でカウントしない）
-                } else {
+                if (status === currentPlayer) {
 
-                    // 連続数が2マス以上であったらその場所をhighlight配列に保持（ハイライト用）
-                    if (count >= 2) {
-                        for (let i = 0; i < count; i++) {
-                            highlights.push([r, start + i]);
-                        }
+                    // 横結合の部分は2個分でカウントしないようにする
+                    if (table[r][c] !== -1 && table[r][c] !== -2) {
+                        count++; // 横の連続数をカウント
                     }
 
-                    // 連続数がwin_number以上となればゲーム終了で勝利とする（win: trueとハイライト位置のhighlightを返す）
+                    positions.push([r, c]); // ハイライトを付ける位置を記録
+
+                } else {
+                    
+                    if (count >= 2) {
+                        highlights.push(...positions); // positionsを展開してhighlightsに入れる
+                    }
+
+                    // 連続数がwin_number以上となればゲーム終了で勝利とする
                     if (count >= win_number) {
                         return { win: true, highlights }; // win_number分だけ連続した数が見つかればtrue
                     }
-
-                    count = 0; // カウント数はリセット
+                    count = 0; // カウント数のリセット
+                    positions = []; // ハイライト位置をリセット
                 }
-
+            }
+            if (count >= 2) {
+                highlights.push(...positions);
+            }
+            if (count >= win_number) {
+                return { win: true, highlights };
             }
         }
         return { win: false, highlights }; // win_number以上の連続部分が見つからなければ未勝利（ハイライト部分は保持）
@@ -144,31 +150,40 @@ function Game() {
     const checkColumns = (table, win_number, currentPlayer) => {
         const highlights = [];
 
-        for (let c = 0; c < table.length; c++) {
+        for (let c = 0; c < table[0].length; c++) {
             let count = 0;
-            let start = 0;
+            let positions = [];
 
-            for (let r = 0; r < table[0].length; r++) {
+            for (let r = 0; r < table.length; r++) {
 
-                let v = table[r][c];
+                let status = getStatus(table, r, c); // 横結合されたセル（-1の値）の場合も考慮できるようにする
 
-                if (v == currentPlayer || (v == -1 && table[r][c-1] == currentPlayer)) {
-                    if (count === 0) start = r;
-                    count += 1; // 横結合されたセル（-1の値）の場合も考慮して縦の連続数をカウント
-                } else if (v == -2) {
-                    // なにもしない（縦結合の部分は2個分でカウントしない）
+                if (status === currentPlayer) {
+
+                    // 縦結合の部分は2個分でカウントしないようにする
+                    if (table[r][c] !== -1 && table[r][c] !== -2) {
+                        count++; // 縦の連続数をカウント
+                    }
+                    
+                    positions.push([r, c]);
+
                 } else {
                     if (count >= 2) {
-                        for (let i = 0; i < count; i++) {
-                            highlights.push([start + i, c]);
-                        }
+                        highlights.push(...positions);
                     }
                     if (count >= win_number) {
                         return { win: true, highlights };
                     }
                     count = 0;
+                    positions = [];
                 }
             }
+            if (count >= 2) {
+                highlights.push(...positions);
+            }
+            if (count >= win_number) {
+                return { win: true, highlights };
+            }   
         }
         return { win: false, highlights };
     };
@@ -252,34 +267,51 @@ function Game() {
             )
         );
 
-        // ゲーム盤を更新させる
-        setTable(newTable);
-
+        // 結合セルのフラグは毎回更新
         newTable[mergeRowIndex_H][mergeColIndex_H + 1] = -1; // 横方向に結合されたセルには-1を入れておく
         newTable[mergeRowIndex_V + 1][mergeColIndex_V] = -2; // 縦方向に結合されたセルには-2を入れておく
+
+        // ゲーム盤を更新させる
+        setTable(newTable);
 
         // セルが結合されて表示されている時、結合セルをクリックすると'O'か'X'が表示され、配列としては拡張する側のセル（左か上）の位置にcurrentPlayerの値が入っている
         // 結合セルの表示は、その拡張する側のセルを2マス分の表示に拡張し、結合された側のセルの表示をスキップすることで実現している
         // その時、表示されなくなり使われなくなった結合された側のセル（右か下）の位置には配列としては横結合なら-1、縦結合なら-2を入れておく
 
-        // newTableについて、縦・横・斜めで勝利判定及びハイライト位置の取得を行う
-        const { win: winRow, highlights: highlightsRow } = checkRows(newTable, win_number, currentPlayer);
-        const { win: winCol, highlights: highlightsCol } = checkColumns(newTable, win_number, currentPlayer);
-        const { win: winDiag, highlights: highlightsDiag } = checkDiagonals(newTable, win_number, currentPlayer);
+        // 盤面の状態のスキャンは両プレイヤー分毎回行う
 
-        // ハイライト位置を全て統合
-        const allHighlights = [...highlightsRow, ...highlightsCol, ...highlightsDiag];
+        // Player1の連続セルをスキャン
+        const p1Row = checkRows(newTable, win_number, 1);
+        const p1Col = checkColumns(newTable, win_number, 1);
+        const p1Diag = checkDiagonals(newTable, win_number, 1);
 
-        // 重複部分があったら削除するユニーク化処理
-        const unique = [...new Set(allHighlights.map(pos => pos.join(',')))]
+        // Player1のハイライト位置の情報を統合
+        const p1Highlights = [...p1Row.highlights, ...p1Col.highlights, ...p1Diag.highlights];
+
+        // 重複している部分は消すユニーク化処理を行う
+        const p1Unique = [...new Set(p1Highlights.map(pos => pos.join(',')))]
             .map(str => str.split(',').map(Number));
 
-        // プレイヤーごとにハイライト情報を保存
-        if (currentPlayer === 1) {
-            setHighlightCellsP1(unique);
-        } else {
-            setHighlightCellsP2(unique);
-        }
+        setHighlightCellsP1(p1Unique); // 配列をセット
+
+        // Player2の連続セルをスキャン
+        const p2Row = checkRows(newTable, win_number, 2);
+        const p2Col = checkColumns(newTable, win_number, 2);
+        const p2Diag = checkDiagonals(newTable, win_number, 2);
+
+        // Player2のハイライト位置の情報を統合
+        const p2Highlights = [...p2Row.highlights, ...p2Col.highlights, ...p2Diag.highlights];
+
+        // 重複している部分は消すユニーク化処理を行う
+        const p2Unique = [...new Set(p2Highlights.map(pos => pos.join(',')))]
+            .map(str => str.split(',').map(Number));
+
+        setHighlightCellsP2(p2Unique); // 配列をセット
+
+        // 手番のプレイヤーの縦・横・斜めでの勝利判定
+        const winRow = currentPlayer === 1 ? p1Row.win : p2Row.win;
+        const winCol = currentPlayer === 1 ? p1Col.win : p2Col.win;
+        const winDiag = currentPlayer === 1 ? p1Diag.win : p2Diag.win;
 
         // 最終的な勝利判定を行う
         if(winRow || winCol || winDiag) {
