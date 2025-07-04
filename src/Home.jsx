@@ -1,5 +1,5 @@
-import React from "react";
-import "./style/App.css";
+import React from 'react';
+import './style/App.css';
 
 // トップページ用コンポーネント（Homeにルーティングされると表示）
 function Home() {
