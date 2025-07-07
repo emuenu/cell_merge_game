@@ -8,7 +8,8 @@
         "build": "vite build",
         "lint": "eslint .",
         "preview": "vite preview",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "prepare": "husky install"
     },
     "dependencies": {
         "react": "^19.1.0",
@@ -30,5 +31,13 @@
         "lint-staged": "^16.1.2",
         "prettier": "^3.6.2",
         "vite": "^7.0.0"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.{js,jsx,ts,tsx,html,css,json}": "prettier --write"
     }
 }
