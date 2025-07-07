@@ -9,6 +9,7 @@ function Game() {
 
     // 縦がverticalで横がhorizontalの二次元配列を用意してゲームボードを作りn目並べを行う
     // セルのクリックで対応する要素に1(O)か2(X)を入れるようにする
+
     // 0: 空, 1: X→player: 1, 2: O→player: 2（最初は全て0）
     // 乱数で決めた値でボード上のランダムな位置に2セル分の結合セルを生成するようにする
     // -1: ←横結合の際に左隣の(c-1)を参照させる, -2: ←縦結合の際に上の(r-1)を参照させる 
@@ -144,6 +145,7 @@ function Game() {
             navigate("/");  // ホームにリダイレクトさせる
             return; // ゲームは終了
         }
+        console.log("asda");
 
         // 引き分け判定（すべてのセルが埋まっているか）
         const isDraw = newTable.every(row => row.every(cell => cell !== 0));
