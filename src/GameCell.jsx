@@ -1,7 +1,7 @@
 import React from 'react';
 import './style/Game.css';
 
-function GameCell({ value, onClick, colSpan, rowSpan }) {
+function GameCell({ value, onClick, colSpan, rowSpan, isP1Highlight, isP2Highlight }) {
     
     let display = '';
 
@@ -9,9 +9,16 @@ function GameCell({ value, onClick, colSpan, rowSpan }) {
     if (value === 1) display = 'X';
     else if (value === 2) display = 'O';
 
+    // クラス名をプレイヤーに合わせて分岐
+    const highlightClass = isP1Highlight
+    ? 'highlight-p1'
+    : isP2Highlight
+        ? 'highlight-p2'
+        : ''; // ハイライトを付けないセル
+
     return (
         <td
-            className="game-cell"
+            className={`game-cell ${highlightClass}`}
             colSpan={colSpan}
             rowSpan={rowSpan}
             onClick={onClick}
