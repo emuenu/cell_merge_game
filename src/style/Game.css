@@ -37,6 +37,16 @@
     background-color: #f0f0f0;
 }
 
+/* プレイヤーにごとの連続しているセルの部分のハイライト */
+/* important属性を付けて最優先にして、上記のhoverが効かないようにする */
+.highlight-p1 {
+    background-color: rgba(0, 128, 255, 0.3) !important;
+}
+
+.highlight-p2 {
+    background-color: rgba(255, 128, 0, 0.3) !important;
+}
+
 .back-link {
     text-decoration: none;
     color: blue;
