@@ -15,7 +15,8 @@ function Game() {
     // -1: ←横結合の際に左隣の(c-1)を参照させる, -2: ←縦結合の際に上の(r-1)を参照させる
 
     const location = useLocation();
-    const { row_count, col_count, win_length } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
+    const { row_count, col_count, win_length, horizontal_merge_count, vertical_merge_count } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
+    console.log(horizontal_merge_count, vertical_merge_count);
     const navigate = useNavigate();
 
     const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦の行数][横の列数]）
@@ -38,9 +39,9 @@ function Game() {
 
     // tableを初期化してマス目を生成する
     useEffect(() => {
-        const newTable= createBoard(row_count,col_count,1,1);
-        setTable(newTable)
-    }, [row_count, col_count]); // row_countとcol_countに依存する
+        const newTable = createBoard(row_count, col_count, horizontal_merge_count, vertical_merge_count);
+        setTable(newTable);
+    }, [row_count, col_count, horizontal_merge_count, vertical_merge_count]); // row_countとcol_countに依存する
 
     // セルがクリックされたときのイベントハンドラ関数
     const handleCellClick = (row, col) => {

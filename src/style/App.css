@@ -1,15 +1,3 @@
-/* 全体レイアウトの中央寄せ */
-.home-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 横方向中央 */
-    justify-content: center; /* 縦方向中央（必要に応じて） */
-    min-height: 10vh;
-    text-align: center;
-    padding: 20px;
-    background-color: #f8f8f8;
-}
-
 /* 入力フィールドの見た目と整列 */
 .inputs {
     display: flex;

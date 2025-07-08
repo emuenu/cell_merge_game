@@ -16,7 +16,6 @@ function GameBoard({
     highlightEnabled,
     onCellClick,
 }) {
-    console.log(table);
     return (
         <table className="game-table">
             <tbody>
@@ -46,7 +45,13 @@ function GameBoard({
 
                             // 横方向のセル結合
                             if (
-                                isOnBoard(rowIndex, colIndex+1, table.length, table[0].length) && table[rowIndex][colIndex+1] == -1
+                                isOnBoard(
+                                    rowIndex,
+                                    colIndex + 1,
+                                    table.length,
+                                    table[0].length,
+                                ) &&
+                                table[rowIndex][colIndex + 1] == -1
                             ) {
                                 return (
                                     <GameCell
@@ -64,7 +69,13 @@ function GameBoard({
 
                             // 縦方向のセル結合
                             if (
-                                isOnBoard(rowIndex+1, colIndex, table.length, table[0].length) && table[rowIndex+1][colIndex] == -2
+                                isOnBoard(
+                                    rowIndex + 1,
+                                    colIndex,
+                                    table.length,
+                                    table[0].length,
+                                ) &&
+                                table[rowIndex + 1][colIndex] == -2
                             ) {
                                 return (
                                     <GameCell

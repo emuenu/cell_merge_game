@@ -17,7 +17,7 @@ export const createBoard = (
     horizontal_merge_count,
     vertical_merge_count,
 ) => {
-    // if (!row_count || !col_count) return; // row_countやcol_countがundefinedなら何もしない //TODO: 違う場所に移す。
+    console.log(horizontal_merge_count, vertical_merge_count);
 
     // row_count*col_countの0埋め配列を生成
     let table = Array.from({ length: row_count }, () =>
@@ -55,6 +55,7 @@ export const createBoard = (
             } else {
                 //被っていなかったとき
                 table[row][col] = -1;
+                horizontal_merge_count -= 1;
             }
         } else {
             // 垂直結合を生成
@@ -78,6 +79,7 @@ export const createBoard = (
             } else {
                 // 被っていなかったとき
                 table[row][col] = -2; // 現在のセルを垂直結合セルとしてマーク
+                vertical_merge_count -= 1;
             }
         }
     }
