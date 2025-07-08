@@ -4,6 +4,7 @@ import GameBoard from "./GameBoard";
 import { checkRows, checkColumns, checkDiagonals } from "./utils/judge.js";
 import { getRandomInt } from "./utils/ramdom.js";
 import "./style/Game.css";
+import { createBoard } from "./utils/board.js";
 
 function Game() {
     // 縦がrow_countで横がcol_countの二次元配列を用意してゲームボードを作りn目並べを行う
@@ -14,16 +15,16 @@ function Game() {
     // -1: ←横結合の際に左隣の(c-1)を参照させる, -2: ←縦結合の際に上の(r-1)を参照させる
 
     const location = useLocation();
-    const { row_count, col_count, win_length } = location.state || {}; // 数値型に変換済みで送られてくるrow_count、h、wを受け取る
+    const { row_count, col_count, win_length } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
     const navigate = useNavigate();
 
     const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦の行数][横の列数]）
     const [currentPlayer, setCurrentPlayer] = useState(1); // 手番の来ているプレイヤー（1 = X側, 2 = O側で先手はX側）
 
-    const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null); // 乱数を使って決める縦結合位置
-    const [mergeColIndex_V, setMergeColIndex_V] = useState(null);
-    const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める横結合位置
-    const [mergeColIndex_H, setMergeColIndex_H] = useState(null);
+    // const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null); // 乱数を使って決める縦結合位置
+    // const [mergeColIndex_V, setMergeColIndex_V] = useState(null);
+    // const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める横結合位置
+    // const [mergeColIndex_H, setMergeColIndex_H] = useState(null);
 
     const [highlightCellsP1, setHighlightCellsP1] = useState([]); // player1のハイライト状態を保持
     const [highlightCellsP2, setHighlightCellsP2] = useState([]); // player2のハイライト状態を保持
@@ -37,51 +38,8 @@ function Game() {
 
     // tableを初期化してマス目を生成する
     useEffect(() => {
-        if (!row_count || !col_count) return; // row_countやcol_countがundefinedなら何もしない
-
-        // vとhを用いて、二次元配列を生成する（ゲーム盤を初期化）
-        const newTable = Array.from({ length: row_count }, () =>
-            Array(col_count).fill(0),
-        );
-        setTable(newTable); // tableを更新
-
-        let mergeRowV, mergeColV; // 縦方向結合位置（行数がmergeRowVで列数がmergeColV）
-        let mergeRowH, mergeColH; // 横方向結合位置（行数がmergeRowHで列数がmergeColH）
-
-        // 乱数を生成
-        while (true) {
-            mergeRowV = getRandomInt(0, row_count - 2); // 下に飛び出してはいけないのでrow_count-2まで
-            mergeColV = getRandomInt(0, col_count - 1);
-            mergeRowH = getRandomInt(0, row_count - 1);
-            mergeColH = getRandomInt(0, col_count - 2); // 右に飛び出してはいけないのでcol_count-2まで
-
-            // 値が適切でない場合は乱数生成をやり直す
-            if (
-                !(
-                    mergeRowV === mergeRowH &&
-                    (mergeColV === mergeColH || mergeColV === mergeColH + 1)
-                ) && // 横方向の結合セルのどちらか2つから下に縦方向の結合セルを伸ばすのはダメ
-                !(
-                    mergeRowV === mergeRowH - 1 &&
-                    (mergeColV === mergeColH || mergeColV === mergeColH + 1)
-                ) && // 縦方向の結合セルが横方向の結合セルと被るのはダメ
-                !(
-                    mergeColH === mergeColV &&
-                    (mergeRowH === mergeRowV || mergeRowH === mergeRowV + 1)
-                ) && // 縦方向の結合セルのどちらか2つから右に横方向の結合セルを伸ばすのはダメ
-                !(
-                    mergeColH === mergeColV - 1 &&
-                    (mergeRowH === mergeRowV || mergeRowH === mergeRowV + 1)
-                ) // 横方向の結合セルが縦方向の結合セルと被るのはダメ
-            )
-                break;
-        }
-
-        // 値を設定
-        setMergeRowIndex_V(mergeRowV);
-        setMergeColIndex_V(mergeColV);
-        setMergeRowIndex_H(mergeRowH);
-        setMergeColIndex_H(mergeColH);
+        const newTable= createBoard(row_count,col_count,1,1);
+        setTable(newTable)
     }, [row_count, col_count]); // row_countとcol_countに依存する
 
     // セルがクリックされたときのイベントハンドラ関数
@@ -94,10 +52,6 @@ function Game() {
                 rowIndex === row && colIndex === col ? currentPlayer : cell,
             ),
         );
-
-        // 結合セルのフラグは毎回更新
-        newTable[mergeRowIndex_H][mergeColIndex_H + 1] = -1; // 横方向に結合されたセルには-1を入れておく
-        newTable[mergeRowIndex_V + 1][mergeColIndex_V] = -2; // 縦方向に結合されたセルには-2を入れておく
 
         // ゲーム盤を更新させる
         setTable(newTable);
@@ -157,7 +111,6 @@ function Game() {
             navigate("/"); // ホームにリダイレクトさせる
             return; // ゲームは終了
         }
-        console.log("asda");
 
         // 引き分け判定（すべてのセルが埋まっているか）
         const isDraw = newTable.every((row) => row.every((cell) => cell !== 0));
@@ -186,10 +139,10 @@ function Game() {
             </button>
             <GameBoard
                 table={table}
-                mergeRowIndex_V={mergeRowIndex_V}
-                mergeColIndex_V={mergeColIndex_V}
-                mergeRowIndex_H={mergeRowIndex_H}
-                mergeColIndex_H={mergeColIndex_H}
+                // mergeRowIndex_V={mergeRowIndex_V}
+                // mergeColIndex_V={mergeColIndex_V}
+                // mergeRowIndex_H={mergeRowIndex_H}
+                // mergeColIndex_H={mergeColIndex_H}
                 highlightCellsP1={highlightCellsP1}
                 highlightCellsP2={highlightCellsP2}
                 highlightEnabled={highlightEnabled}

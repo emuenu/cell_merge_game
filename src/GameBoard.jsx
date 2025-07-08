@@ -1,20 +1,22 @@
 import React from "react";
 import GameCell from "./GameCell";
+import { isOnBoard } from "./utils/board.js";
 
 // table[mergeRowIndex_V][mergeColIndex_V] と table[mergeRowIndex_V + 1][mergeColIndex_V] を結合させる（縦方向のvertical）
 // table[mergeRowIndex_H][mergeColIndex_H] と table[mergeRowIndex_H][mergeColIndex_H + 1] を結合させる（横方向のhorizontal）
 
 function GameBoard({
     table,
-    mergeRowIndex_V,
-    mergeColIndex_V,
-    mergeRowIndex_H,
-    mergeColIndex_H,
+    // mergeRowIndex_V,
+    // mergeColIndex_V,
+    // mergeRowIndex_H,
+    // mergeColIndex_H,
     highlightCellsP1,
     highlightCellsP2,
     highlightEnabled,
     onCellClick,
 }) {
+    console.log(table);
     return (
         <table className="game-table">
             <tbody>
@@ -44,8 +46,7 @@ function GameBoard({
 
                             // 横方向のセル結合
                             if (
-                                rowIndex === mergeRowIndex_H &&
-                                colIndex === mergeColIndex_H
+                                isOnBoard(rowIndex, colIndex+1, table.length, table[0].length) && table[rowIndex][colIndex+1] == -1
                             ) {
                                 return (
                                     <GameCell
@@ -61,22 +62,9 @@ function GameBoard({
                                 );
                             }
 
-                            // 横にセル結合した時、結合された右隣のセルは表示させないようにする
-                            if (
-                                rowIndex === mergeRowIndex_H &&
-                                colIndex === mergeColIndex_H + 1 &&
-                                !(
-                                    rowIndex === mergeRowIndex_V &&
-                                    colIndex === mergeColIndex_V + 1
-                                )
-                            ) {
-                                return null; // 描画をスキップ
-                            }
-
                             // 縦方向のセル結合
                             if (
-                                rowIndex === mergeRowIndex_V &&
-                                colIndex === mergeColIndex_V
+                                isOnBoard(rowIndex+1, colIndex, table.length, table[0].length) && table[rowIndex+1][colIndex] == -2
                             ) {
                                 return (
                                     <GameCell
@@ -92,16 +80,8 @@ function GameBoard({
                                 );
                             }
 
-                            // 縦にセル結合した時、結合された1つ下のセルは表示させないようにする
-                            if (
-                                rowIndex === mergeRowIndex_V + 1 &&
-                                colIndex === mergeColIndex_V &&
-                                !(
-                                    rowIndex === mergeRowIndex_H + 1 &&
-                                    colIndex === mergeColIndex_H
-                                )
-                            ) {
-                                return null; // 描画をスキップ
+                            if (cell == -1 || cell == -2) {
+                                return null;
                             }
 
                             // その他のセルは通常通り描画させる
