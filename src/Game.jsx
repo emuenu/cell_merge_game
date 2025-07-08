@@ -6,7 +6,7 @@ import { getRandomInt } from "./utils/ramdom.js";
 import "./style/Game.css";
 
 function Game() {
-    // 縦がverticalで横がhorizontalの二次元配列を用意してゲームボードを作りn目並べを行う
+    // 縦がrow_countで横がcol_countの二次元配列を用意してゲームボードを作りn目並べを行う
     // セルのクリックで対応する要素に1(O)か2(X)を入れるようにする
 
     // 0: 空, 1: X→player: 1, 2: O→player: 2（最初は全て0）
@@ -14,7 +14,7 @@ function Game() {
     // -1: ←横結合の際に左隣の(c-1)を参照させる, -2: ←縦結合の際に上の(r-1)を参照させる
 
     const location = useLocation();
-    const { v, h, w } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
+    const { row_count, col_count, win_length } = location.state || {}; // 数値型に変換済みで送られてくるrow_count、h、wを受け取る
     const navigate = useNavigate();
 
     const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦の行数][横の列数]）
@@ -30,11 +30,6 @@ function Game() {
 
     const [highlightEnabled, setHighlightEnabled] = useState(true); // ハイライト機能のON/OFFを管理
 
-    // 名前解決
-    const vertical = v;
-    const horizontal = h;
-    const win_number = w;
-
     // ハイライト機能のON/OFF用のトグル関数
     const toggleHighlight = () => {
         setHighlightEnabled((prev) => !prev);
@@ -42,11 +37,11 @@ function Game() {
 
     // tableを初期化してマス目を生成する
     useEffect(() => {
-        if (!vertical || !horizontal) return; // verticalやhorizontalがundefinedなら何もしない
+        if (!row_count || !col_count) return; // row_countやcol_countがundefinedなら何もしない
 
         // vとhを用いて、二次元配列を生成する（ゲーム盤を初期化）
-        const newTable = Array.from({ length: vertical }, () =>
-            Array(horizontal).fill(0),
+        const newTable = Array.from({ length: row_count }, () =>
+            Array(col_count).fill(0),
         );
         setTable(newTable); // tableを更新
 
@@ -55,10 +50,10 @@ function Game() {
 
         // 乱数を生成
         while (true) {
-            mergeRowV = getRandomInt(0, vertical - 2); // 下に飛び出してはいけないのでvertical-2まで
-            mergeColV = getRandomInt(0, horizontal - 1);
-            mergeRowH = getRandomInt(0, vertical - 1);
-            mergeColH = getRandomInt(0, horizontal - 2); // 右に飛び出してはいけないのでhorizontal-2まで
+            mergeRowV = getRandomInt(0, row_count - 2); // 下に飛び出してはいけないのでrow_count-2まで
+            mergeColV = getRandomInt(0, col_count - 1);
+            mergeRowH = getRandomInt(0, row_count - 1);
+            mergeColH = getRandomInt(0, col_count - 2); // 右に飛び出してはいけないのでcol_count-2まで
 
             // 値が適切でない場合は乱数生成をやり直す
             if (
@@ -87,7 +82,7 @@ function Game() {
         setMergeColIndex_V(mergeColV);
         setMergeRowIndex_H(mergeRowH);
         setMergeColIndex_H(mergeColH);
-    }, [vertical, horizontal]); // verticalとhorizontalに依存する
+    }, [row_count, col_count]); // row_countとcol_countに依存する
 
     // セルがクリックされたときのイベントハンドラ関数
     const handleCellClick = (row, col) => {
@@ -114,9 +109,9 @@ function Game() {
         // 盤面の状態のスキャンは両プレイヤー分毎回行う
 
         // Player1の連続セルをスキャン
-        const p1Row = checkRows(newTable, win_number, 1);
-        const p1Col = checkColumns(newTable, win_number, 1);
-        const p1Diag = checkDiagonals(newTable, win_number, 1);
+        const p1Row = checkRows(newTable, win_length, 1);
+        const p1Col = checkColumns(newTable, win_length, 1);
+        const p1Diag = checkDiagonals(newTable, win_length, 1);
 
         // Player1のハイライト位置の情報を統合
         const p1Highlights = [
@@ -133,9 +128,9 @@ function Game() {
         setHighlightCellsP1(p1Unique); // 配列をセット
 
         // Player2の連続セルをスキャン
-        const p2Row = checkRows(newTable, win_number, 2);
-        const p2Col = checkColumns(newTable, win_number, 2);
-        const p2Diag = checkDiagonals(newTable, win_number, 2);
+        const p2Row = checkRows(newTable, win_length, 2);
+        const p2Col = checkColumns(newTable, win_length, 2);
+        const p2Diag = checkDiagonals(newTable, win_length, 2);
 
         // Player2のハイライト位置の情報を統合
         const p2Highlights = [
@@ -183,7 +178,7 @@ function Game() {
     return (
         <div className="game-layout">
             <p>
-                縦: {vertical} / 横: {horizontal} / 勝利条件: {win_number}{" "}
+                縦: {row_count} / 横: {col_count} / 勝利条件: {win_length}{" "}
                 マス揃える
             </p>
             <button onClick={toggleHighlight}>

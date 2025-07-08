@@ -57,25 +57,25 @@ function Main() {
         }
 
         // typeをnumber（文字列）としてinputしたので、数値に変換する
-        const v = Number(vertical);
-        const h = Number(horizontal);
-        const w = Number(win_number);
+        const row_count = Number(vertical); //行数
+        const col_count = Number(horizontal); //列数
+        const win_length = Number(win_number); //勝利に必要な長さ
 
-        if (v < w && h < w) {
+        if (row_count < win_length && col_count < win_length) {
             alert(
                 "縦横のマス数は、どちらかが揃えるマス数以上の値である必要があります",
             );
             return; // 遷移を止める
         }
 
-        if (v < 3 || h < 3 || w < 3) {
+        if (row_count < 3 || col_count < 3 || win_length < 3) {
             alert("各値は3以上の数に設定してください");
             return; // 遷移を止める
         }
 
         // Game.jsx（/game）にページ遷移させる
         // vertical(v), horizontal(h), win_number(w)をpropsとして渡す
-        navigate("/game", { state: { v, h, w } });
+        navigate("/game", { state: { row_count, col_count, win_length } });
     };
 
     // ルールを表示するイベントハンドラ関数
