@@ -4,7 +4,7 @@
 
 .game-table {
     border-collapse: collapse;
-    margin: 20px auto;
+    margin: auto;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -36,10 +36,4 @@
 
 .highlight-p2 {
     background-color: rgba(255, 128, 0, 0.3) !important;
-}
-
-.back-link {
-    text-decoration: none;
-    color: blue;
-    font-weight: bold;
 }

@@ -157,16 +157,23 @@ function Game() {
             <Button onClick={toggleHighlight} variant="outline-primary">
                 {highlightEnabled ? "ハイライト ON" : "ハイライト OFF"}
             </Button>
-            <GameBoard
-                table={table}
-                highlightCellsP1={highlightCellsP1}
-                highlightCellsP2={highlightCellsP2}
-                highlightEnabled={highlightEnabled}
-                onCellClick={handleCellClick}
-            />
-        <Button href="/" className="my-3" variant="outline-success" size="sm">
-          タイトルに戻る
-        </Button>
+            <div className="my-4">
+                <GameBoard
+                    table={table}
+                    highlightCellsP1={highlightCellsP1}
+                    highlightCellsP2={highlightCellsP2}
+                    highlightEnabled={highlightEnabled}
+                    onCellClick={handleCellClick}
+                />
+            </div>
+            <Button
+                href="/"
+                className="my-3"
+                variant="outline-success"
+                size="sm"
+            >
+                タイトルに戻る
+            </Button>
         </div>
     );
 }

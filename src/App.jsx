@@ -28,7 +28,10 @@ const DEFAULT_VERTICAL_MERGE_COUNT = "20";
 
 function App() {
     return (
-        <div className="d-flex align-items-center justify-content-center" style={{minHeight: "100dvh"}}>
+        <div
+            className="d-flex align-items-center justify-content-center"
+            style={{ minHeight: "100dvh" }}
+        >
             <Router>
                 <Main />
             </Router>
@@ -125,7 +128,10 @@ function Main() {
 
     // 数値を入力してゲーム開始とルール説明を見る
     return (
-        <Container fluid="sm" className="my-3 text-center mx-auto blur rounded-3">
+        <Container
+            fluid="sm"
+            className="my-3 text-center mx-auto blur rounded-3"
+        >
             {isHome && (
                 <div>
                     <img
@@ -172,14 +178,14 @@ function Main() {
                                                         display: "inline-block",
                                                     }}
                                                 >
-チュートリアルを
+                                                    チュートリアルを
                                                 </span>
                                                 <span
                                                     style={{
                                                         display: "inline-block",
                                                     }}
                                                 >
-                                                始める
+                                                    始める
                                                 </span>
                                             </Button>
                                         </Card.Body>
