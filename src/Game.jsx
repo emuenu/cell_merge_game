@@ -2,11 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import GameBoard from "./GameBoard";
 import { checkRows, checkColumns, checkDiagonals } from "./utils/judge.js";
-import { getRandomInt } from "./utils/ramdom.js";
 import "./style/Game.css";
+import { createBoard } from "./utils/board.js";
+import {
+    Button,
+    Col,
+    Card,
+    Row,
+    Accordion,
+    Form,
+    Container,
+} from "react-bootstrap";
 
 function Game() {
-    // 縦がverticalで横がhorizontalの二次元配列を用意してゲームボードを作りn目並べを行う
+    // 縦がrow_countで横がcol_countの二次元配列を用意してゲームボードを作りn目並べを行う
     // セルのクリックで対応する要素に1(O)か2(X)を入れるようにする
 
     // 0: 空, 1: X→player: 1, 2: O→player: 2（最初は全て0）
@@ -14,26 +23,27 @@ function Game() {
     // -1: ←横結合の際に左隣の(c-1)を参照させる, -2: ←縦結合の際に上の(r-1)を参照させる
 
     const location = useLocation();
-    const { v, h, w } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
+    const {
+        row_count,
+        col_count,
+        win_length,
+        horizontal_merge_count,
+        vertical_merge_count,
+    } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
     const navigate = useNavigate();
 
     const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦の行数][横の列数]）
     const [currentPlayer, setCurrentPlayer] = useState(1); // 手番の来ているプレイヤー（1 = X側, 2 = O側で先手はX側）
 
-    const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null); // 乱数を使って決める縦結合位置
-    const [mergeColIndex_V, setMergeColIndex_V] = useState(null);
-    const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める横結合位置
-    const [mergeColIndex_H, setMergeColIndex_H] = useState(null);
+    // const [mergeRowIndex_V, setMergeRowIndex_V] = useState(null); // 乱数を使って決める縦結合位置
+    // const [mergeColIndex_V, setMergeColIndex_V] = useState(null);
+    // const [mergeRowIndex_H, setMergeRowIndex_H] = useState(null); // 乱数を使って決める横結合位置
+    // const [mergeColIndex_H, setMergeColIndex_H] = useState(null);
 
     const [highlightCellsP1, setHighlightCellsP1] = useState([]); // player1のハイライト状態を保持
     const [highlightCellsP2, setHighlightCellsP2] = useState([]); // player2のハイライト状態を保持
 
     const [highlightEnabled, setHighlightEnabled] = useState(true); // ハイライト機能のON/OFFを管理
-
-    // 名前解決
-    const vertical = v;
-    const horizontal = h;
-    const win_number = w;
 
     // ハイライト機能のON/OFF用のトグル関数
     const toggleHighlight = () => {
@@ -42,52 +52,14 @@ function Game() {
 
     // tableを初期化してマス目を生成する
     useEffect(() => {
-        if (!vertical || !horizontal) return; // verticalやhorizontalがundefinedなら何もしない
-
-        // vとhを用いて、二次元配列を生成する（ゲーム盤を初期化）
-        const newTable = Array.from({ length: vertical }, () =>
-            Array(horizontal).fill(0),
+        const newTable = createBoard(
+            row_count,
+            col_count,
+            horizontal_merge_count,
+            vertical_merge_count,
         );
-        setTable(newTable); // tableを更新
-
-        let mergeRowV, mergeColV; // 縦方向結合位置（行数がmergeRowVで列数がmergeColV）
-        let mergeRowH, mergeColH; // 横方向結合位置（行数がmergeRowHで列数がmergeColH）
-
-        // 乱数を生成
-        while (true) {
-            mergeRowV = getRandomInt(0, vertical - 2); // 下に飛び出してはいけないのでvertical-2まで
-            mergeColV = getRandomInt(0, horizontal - 1);
-            mergeRowH = getRandomInt(0, vertical - 1);
-            mergeColH = getRandomInt(0, horizontal - 2); // 右に飛び出してはいけないのでhorizontal-2まで
-
-            // 値が適切でない場合は乱数生成をやり直す
-            if (
-                !(
-                    mergeRowV === mergeRowH &&
-                    (mergeColV === mergeColH || mergeColV === mergeColH + 1)
-                ) && // 横方向の結合セルのどちらか2つから下に縦方向の結合セルを伸ばすのはダメ
-                !(
-                    mergeRowV === mergeRowH - 1 &&
-                    (mergeColV === mergeColH || mergeColV === mergeColH + 1)
-                ) && // 縦方向の結合セルが横方向の結合セルと被るのはダメ
-                !(
-                    mergeColH === mergeColV &&
-                    (mergeRowH === mergeRowV || mergeRowH === mergeRowV + 1)
-                ) && // 縦方向の結合セルのどちらか2つから右に横方向の結合セルを伸ばすのはダメ
-                !(
-                    mergeColH === mergeColV - 1 &&
-                    (mergeRowH === mergeRowV || mergeRowH === mergeRowV + 1)
-                ) // 横方向の結合セルが縦方向の結合セルと被るのはダメ
-            )
-                break;
-        }
-
-        // 値を設定
-        setMergeRowIndex_V(mergeRowV);
-        setMergeColIndex_V(mergeColV);
-        setMergeRowIndex_H(mergeRowH);
-        setMergeColIndex_H(mergeColH);
-    }, [vertical, horizontal]); // verticalとhorizontalに依存する
+        setTable(newTable);
+    }, [row_count, col_count, horizontal_merge_count, vertical_merge_count]); // row_countとcol_countに依存する
 
     // セルがクリックされたときのイベントハンドラ関数
     const handleCellClick = (row, col) => {
@@ -100,10 +72,6 @@ function Game() {
             ),
         );
 
-        // 結合セルのフラグは毎回更新
-        newTable[mergeRowIndex_H][mergeColIndex_H + 1] = -1; // 横方向に結合されたセルには-1を入れておく
-        newTable[mergeRowIndex_V + 1][mergeColIndex_V] = -2; // 縦方向に結合されたセルには-2を入れておく
-
         // ゲーム盤を更新させる
         setTable(newTable);
 
@@ -114,9 +82,9 @@ function Game() {
         // 盤面の状態のスキャンは両プレイヤー分毎回行う
 
         // Player1の連続セルをスキャン
-        const p1Row = checkRows(newTable, win_number, 1);
-        const p1Col = checkColumns(newTable, win_number, 1);
-        const p1Diag = checkDiagonals(newTable, win_number, 1);
+        const p1Row = checkRows(newTable, win_length, 1);
+        const p1Col = checkColumns(newTable, win_length, 1);
+        const p1Diag = checkDiagonals(newTable, win_length, 1);
 
         // Player1のハイライト位置の情報を統合
         const p1Highlights = [
@@ -133,9 +101,9 @@ function Game() {
         setHighlightCellsP1(p1Unique); // 配列をセット
 
         // Player2の連続セルをスキャン
-        const p2Row = checkRows(newTable, win_number, 2);
-        const p2Col = checkColumns(newTable, win_number, 2);
-        const p2Diag = checkDiagonals(newTable, win_number, 2);
+        const p2Row = checkRows(newTable, win_length, 2);
+        const p2Col = checkColumns(newTable, win_length, 2);
+        const p2Diag = checkDiagonals(newTable, win_length, 2);
 
         // Player2のハイライト位置の情報を統合
         const p2Highlights = [
@@ -162,7 +130,6 @@ function Game() {
             navigate("/"); // ホームにリダイレクトさせる
             return; // ゲームは終了
         }
-        console.log("asda");
 
         // 引き分け判定（すべてのセルが埋まっているか）
         const isDraw = newTable.every((row) => row.every((cell) => cell !== 0));
@@ -183,24 +150,30 @@ function Game() {
     return (
         <div className="game-layout">
             <p>
-                縦: {vertical} / 横: {horizontal} / 勝利条件: {win_number}{" "}
+                縦: {row_count} / 横: {col_count} / 勝利条件: {win_length}{" "}
                 マス揃える
             </p>
-            <button onClick={toggleHighlight}>
+
+            <Button onClick={toggleHighlight} variant="outline-primary">
                 {highlightEnabled ? "ハイライト ON" : "ハイライト OFF"}
-            </button>
-            <GameBoard
-                table={table}
-                mergeRowIndex_V={mergeRowIndex_V}
-                mergeColIndex_V={mergeColIndex_V}
-                mergeRowIndex_H={mergeRowIndex_H}
-                mergeColIndex_H={mergeColIndex_H}
-                highlightCellsP1={highlightCellsP1}
-                highlightCellsP2={highlightCellsP2}
-                highlightEnabled={highlightEnabled}
-                onCellClick={handleCellClick}
-            />
-            <Link to="/">Back to Home</Link>
+            </Button>
+            <div className="my-4">
+                <GameBoard
+                    table={table}
+                    highlightCellsP1={highlightCellsP1}
+                    highlightCellsP2={highlightCellsP2}
+                    highlightEnabled={highlightEnabled}
+                    onCellClick={handleCellClick}
+                />
+            </div>
+            <Button
+                href="/"
+                className="my-3"
+                variant="outline-success"
+                size="sm"
+            >
+                タイトルに戻る
+            </Button>
         </div>
     );
 }

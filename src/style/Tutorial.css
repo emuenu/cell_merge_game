@@ -1,0 +1,33 @@
+.multi-base-5x5 {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+/* .multi-layer { */
+/*     position: absolute; */
+/*     top: 0; */
+/*     left: 0; */
+/*     width: 100%; */
+/*     height: 100%; */
+/* background-color: red; */
+/*     opacity: 0.7; */
+/*     margin: 0 auto; */
+/* } */
+
+.line-45::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 141.42%; /* √2 × 100% → 対角線の長さに合わせる */
+    height: 2px;
+    background-color: black; /* 線の色 */
+    transform: rotate(45deg);
+    transform-origin: top left;
+}
+
+.bold {
+    font-weight: bold;
+}
