@@ -8,11 +8,11 @@
             .red { fill: none; stroke: black; }
             .blue { fill: none; stroke: black; }
             .highlight-p1 {
-                fill: rgba(0, 128, 255, 0.3) !important;
+                fill: #B2D9FF !important;
             }
 
             .highlight-p2 {
-                fill: rgba(255, 128, 0, 0.3) !important;
+                fill: #FFD9B2 !important;
             }
         </style>
     </defs>

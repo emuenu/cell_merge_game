@@ -116,7 +116,13 @@ export const checkDiagonals = (table, win_number, currentPlayer) => {
         for (let r = 0; r < table.length && r <= i; r++) {
             let c = i - r;
             if (getStatus(table, r, c) === currentPlayer) {
-                positions.push([r, c]);
+                if (table[r][c] == -1) {
+                    positions.push([r, c - 1]);
+                } else if (table[r][c] == -2) {
+                    positions.push([r - 1, c]);
+                } else {
+                    positions.push([r, c]);
+                }
                 count++; // 斜めの場合も結合されたセル（値-1か-2）を考慮して連続数をカウント
             } else {
                 if (count >= 2) {
@@ -147,7 +153,13 @@ export const checkDiagonals = (table, win_number, currentPlayer) => {
         for (let r = 0; r < table.length && r <= i; r++) {
             let c = table[0].length - (i - r);
             if (getStatus(table, r, c) == currentPlayer) {
-                positions.push([r, c]);
+                if (table[r][c] == -1) {
+                    positions.push([r, c - 1]);
+                } else if (table[r][c] == -2) {
+                    positions.push([r - 1, c]);
+                } else {
+                    positions.push([r, c]);
+                }
                 count++; // 斜めの場合も結合されたセル（値-1か-2）を考慮して連続数をカウント
             } else {
                 if (count >= 2) {

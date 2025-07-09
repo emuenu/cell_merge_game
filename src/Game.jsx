@@ -2,9 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import GameBoard from "./GameBoard";
 import { checkRows, checkColumns, checkDiagonals } from "./utils/judge.js";
-import { getRandomInt } from "./utils/ramdom.js";
 import "./style/Game.css";
 import { createBoard } from "./utils/board.js";
+import {
+    Button,
+    Col,
+    Card,
+    Row,
+    Accordion,
+    Form,
+    Container,
+} from "react-bootstrap";
 
 function Game() {
     // 縦がrow_countで横がcol_countの二次元配列を用意してゲームボードを作りn目並べを行う
@@ -15,8 +23,13 @@ function Game() {
     // -1: ←横結合の際に左隣の(c-1)を参照させる, -2: ←縦結合の際に上の(r-1)を参照させる
 
     const location = useLocation();
-    const { row_count, col_count, win_length, horizontal_merge_count, vertical_merge_count } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
-    console.log(horizontal_merge_count, vertical_merge_count);
+    const {
+        row_count,
+        col_count,
+        win_length,
+        horizontal_merge_count,
+        vertical_merge_count,
+    } = location.state || {}; // 数値型に変換済みで送られてくるv、h、wを受け取る
     const navigate = useNavigate();
 
     const [table, setTable] = useState([]); // ゲーム盤を二次元配列として保持する（table[縦の行数][横の列数]）
@@ -39,7 +52,12 @@ function Game() {
 
     // tableを初期化してマス目を生成する
     useEffect(() => {
-        const newTable = createBoard(row_count, col_count, horizontal_merge_count, vertical_merge_count);
+        const newTable = createBoard(
+            row_count,
+            col_count,
+            horizontal_merge_count,
+            vertical_merge_count,
+        );
         setTable(newTable);
     }, [row_count, col_count, horizontal_merge_count, vertical_merge_count]); // row_countとcol_countに依存する
 
@@ -135,21 +153,20 @@ function Game() {
                 縦: {row_count} / 横: {col_count} / 勝利条件: {win_length}{" "}
                 マス揃える
             </p>
-            <button onClick={toggleHighlight}>
+
+            <Button onClick={toggleHighlight} variant="outline-primary">
                 {highlightEnabled ? "ハイライト ON" : "ハイライト OFF"}
-            </button>
+            </Button>
             <GameBoard
                 table={table}
-                // mergeRowIndex_V={mergeRowIndex_V}
-                // mergeColIndex_V={mergeColIndex_V}
-                // mergeRowIndex_H={mergeRowIndex_H}
-                // mergeColIndex_H={mergeColIndex_H}
                 highlightCellsP1={highlightCellsP1}
                 highlightCellsP2={highlightCellsP2}
                 highlightEnabled={highlightEnabled}
                 onCellClick={handleCellClick}
             />
-            <Link to="/">Back to Home</Link>
+        <Button href="/" className="my-3" variant="outline-success" size="sm">
+          タイトルに戻る
+        </Button>
         </div>
     );
 }

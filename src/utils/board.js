@@ -17,8 +17,6 @@ export const createBoard = (
     horizontal_merge_count,
     vertical_merge_count,
 ) => {
-    console.log(horizontal_merge_count, vertical_merge_count);
-
     // row_count*col_countの0埋め配列を生成
     let table = Array.from({ length: row_count }, () =>
         Array(col_count).fill(0),

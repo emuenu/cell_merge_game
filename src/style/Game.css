@@ -1,15 +1,6 @@
-.game-layout {
-    position: absolute;
-    width: 200%;
-    max-width: 800px;
-    left: 350px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: #f8f8f8;
-}
+/* .game-layout { */
+/*     background-color: #f8f8f8; */
+/* } */
 
 .game-table {
     border-collapse: collapse;
