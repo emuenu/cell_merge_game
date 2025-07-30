@@ -1,3 +1,3 @@
-# React + Vite
+# Tic-Tac-Toe game powered by React and Boostrap
 
-セルの結合をしてn目並べを行う
+This is Tic-Tac-Toe game with merged cells. A project with cykps.
